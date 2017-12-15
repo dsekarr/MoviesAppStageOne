@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">MoviesStageOne</string>
+    <string name="action_refresh">Refresh</string>
+    <string name="most_popular">Most Popular</string>
+    <string name="highest_rated">Highest Rated</string>
+    <string name="movie_image">Movie Image</string>
+    <string name="mark_Favorite">FAVORITE</string>
+    <string name="trailerTitle">Trailers:</string>
+    <string name="play_pauseButton">Play-Pause Button</string>
+    <string name="trailer_1">Trailer 1</string>
+    <string name="trailer_2">Trailer 2</string>
+    <string name="no_network_error_message">Check your Internet connectivity and try again.</string>
+    <string name="api_key">apiKey</string>
+</resources>
