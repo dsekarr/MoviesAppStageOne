@@ -8,11 +8,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.example.dsekar.moviesstageone.Data.Movie;
 import com.example.dsekar.moviesstageone.utilities.MovieNetworkUtils;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapterViewHolder> {
 
@@ -63,11 +67,12 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
      * View Holder
      */
     public class MovieAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        private final ImageView mImageView;
+        @BindView(R.id.image_poster_view)
+        ImageView mImageView;
 
         public MovieAdapterViewHolder(View itemView) {
             super(itemView);
-            mImageView = itemView.findViewById(R.id.image_poster_view);
+            ButterKnife.bind(this, itemView);
             itemView.setOnClickListener(this);
         }
 

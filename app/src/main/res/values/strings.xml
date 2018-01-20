@@ -4,11 +4,16 @@
     <string name="most_popular">Most Popular</string>
     <string name="highest_rated">Highest Rated</string>
     <string name="movie_image">Movie Image</string>
-    <string name="mark_Favorite">FAVORITE</string>
-    <string name="trailerTitle">Trailers:</string>
     <string name="play_pauseButton">Play-Pause Button</string>
-    <string name="trailer_1">Trailer 1</string>
-    <string name="trailer_2">Trailer 2</string>
     <string name="no_network_error_message">Check your Internet connectivity and try again.</string>
     <string name="api_key">apiKey</string>
+    <string name="content_authority">com.example.dsekar.moviesstageone</string>
+    <string name="navbar_video">Video</string>
+    <string name="navbar_overview">Overview</string>
+    <string name="navbar_review">Review</string>
+    <string name="menu_favorite">Favorites</string>
+    <string name="no_favorites">No Favorite movies.</string>
+    <string name="no_review_results">No Results</string>
+    <string name="backdrop_contentDes">Backdrop Image</string>
+    <string name="video_poster">Video Poster</string>
 </resources>

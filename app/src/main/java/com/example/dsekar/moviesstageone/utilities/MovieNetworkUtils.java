@@ -27,6 +27,8 @@ public class MovieNetworkUtils {
     public static final String MOST_POPULAR = "popular";
     public static final String MOVIE_URI = "http://image.tmdb.org/t/p/w500/";
 
+    public static final String VIDEO_BASE_URL = "http://img.youtube.com/vi/";
+
     /**
      * Check the network connectivity to make a web call.
      *
@@ -68,13 +70,30 @@ public class MovieNetworkUtils {
         return url;
     }
 
+    public static URL buildUrl(int movieId, String param, Context context) {
+        final String QUERY_API_KEY = getQueryApiKey(context);
+        Uri uri = Uri.parse(BASE_URL).buildUpon().appendPath(Integer.toString(movieId))
+                .appendPath(param)
+                .appendQueryParameter(QUERY_PARAM, QUERY_API_KEY).build();
+
+        URL url = null;
+        try {
+            url = new URL(uri.toString());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        Log.v(TAG, "Built URI " + url);
+
+        return url;
+    }
+
     /**
      * Get the api key to build the URL from android manifest file.
      *
      * @param context
      * @return
      */
-    private static String getQueryApiKey(Context context) {
+    public static String getQueryApiKey(Context context) {
         ApplicationInfo ai = null;
         try {
             ai = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);

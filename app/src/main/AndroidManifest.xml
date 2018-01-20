@@ -3,8 +3,7 @@
     package="com.example.dsekar.moviesstageone">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:allowBackup="true"
@@ -14,15 +13,41 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <meta-data android:name="apiKey" android:value=""/>
-        <activity android:name=".MainActivity">
+        <meta-data
+            android:name="apiKey"
+            android:value="ff26e7d1556956bd22802423664bc4f7" />
+
+        <activity
+            android:name=".MainActivity"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".DetailActivity"/>
+        <activity
+            android:name=".DetailActivity"
+            android:launchMode="singleTop"
+            android:theme="@style/Base.Theme.DesignDemo">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity"/>
+        </activity>
+
+        <activity android:name=".VideoActivity" />
+
+        <activity android:name=".ReviewActivity" />
+
+      <provider
+          android:authorities="com.example.dsekar.moviesstageone"
+          android:name=".Db.MovieProvider"
+          android:exported="false"/>
     </application>
 
 </manifest>
+
+<!--<provider-->
+<!--android:name=".Db$MovieProvider"-->
+<!--android:authorities="@string/content_authority"-->
+<!--android:exported="false" />-->
