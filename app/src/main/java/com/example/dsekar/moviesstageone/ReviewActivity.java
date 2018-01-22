@@ -2,8 +2,8 @@ package com.example.dsekar.moviesstageone;
 
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -56,23 +56,21 @@ public class ReviewActivity extends AppCompatActivity {
         rRecyclerView.setLayoutManager(layoutManager);
         rRecyclerView.setHasFixedSize(true);
         rRecyclerView.setAdapter(rAdapter);
+        executeReviewTask();
+    }
 
-        if(MovieNetworkUtils.checkNetworkStatus(this)){
+    private void executeReviewTask() {
+        if (MovieNetworkUtils.checkNetworkStatus(this)) {
             rRecyclerView.setVisibility(View.VISIBLE);
             noNetwork.setVisibility(View.INVISIBLE);
             noResult.setVisibility(View.INVISIBLE);
-            executeReviewTask();
-        }
-        else {
+            URL url = MovieNetworkUtils.buildUrl(movie.getId(), REVIEW, this);
+            new FetchReviewTask().execute(url);
+        } else {
             rRecyclerView.setVisibility(View.INVISIBLE);
             noResult.setVisibility(View.INVISIBLE);
             noNetwork.setVisibility(View.VISIBLE);
         }
-    }
-
-    private void executeReviewTask(){
-        URL url = MovieNetworkUtils.buildUrl(movie.getId(), REVIEW, this);
-        new FetchReviewTask().execute(url);
     }
 
     public class FetchReviewTask extends AsyncTask<URL, Void, List<Review>> {
@@ -92,7 +90,7 @@ public class ReviewActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(List<Review> reviews) {
             super.onPostExecute(reviews);
-            if(reviews.size() == 0){
+            if (reviews.size() == 0) {
                 noResult.setVisibility(View.VISIBLE);
                 noNetwork.setVisibility(View.INVISIBLE);
             }

@@ -57,12 +57,16 @@ public class VideoActivity extends AppCompatActivity implements VideoAdapter.Vid
         vRecyclerView.setLayoutManager(layoutManager);
         vRecyclerView.setHasFixedSize(true);
         vRecyclerView.setAdapter(vAdapter);
+        executeVideoTask();
+    }
 
+    private void executeVideoTask() {
         if (MovieNetworkUtils.checkNetworkStatus(this)) {
             vRecyclerView.setVisibility(View.VISIBLE);
             noNetwork_Video.setVisibility(View.INVISIBLE);
             noVideoResult.setVisibility(View.INVISIBLE);
-            executeVideoTask();
+            URL url = MovieNetworkUtils.buildUrl(movie.getId(), VIDEO, this);
+            new FetchVideoTask().execute(url);
         } else {
             vRecyclerView.setVisibility(View.INVISIBLE);
             noVideoResult.setVisibility(View.INVISIBLE);
@@ -70,15 +74,8 @@ public class VideoActivity extends AppCompatActivity implements VideoAdapter.Vid
         }
     }
 
-    private void executeVideoTask() {
-        URL url = MovieNetworkUtils.buildUrl(movie.getId(), VIDEO, this);
-        new FetchVideoTask().execute(url);
-    }
-
     @Override
     public void onClick(Video video) {
-//        Intent webIntent = new Intent(Intent.ACTION_VIEW,
-//                MovieNetworkUtils.getVideoLink(video.getKey()));
         Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + video.getKey()));
         if (webIntent.resolveActivity(getPackageManager()) != null) {
             startActivity(webIntent);

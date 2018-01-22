@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     TextView mNoFavorites;
 
     private List<Movie> movieList = new ArrayList<>();
-    private onNetworkChangeReceiver networkChangetReceiver;
+    private onNetworkChangeReceiver networkChangeReceiver;
     private IntentFilter intentFilter;
     private static final String CURRENT_MOVIES_DISPLAY = "current_movies";
     private static final int FAV_INIT_LOADER = 135;
@@ -115,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
                 mErrorMessage.setVisibility(View.VISIBLE);
             }
         }
-        networkChangetReceiver = new onNetworkChangeReceiver();
+        networkChangeReceiver = new onNetworkChangeReceiver();
         intentFilter = new IntentFilter();
         intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
     }
@@ -123,7 +123,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     @Override
     protected void onResume() {
         super.onResume();
-        registerReceiver(networkChangetReceiver, intentFilter);
+        registerReceiver(networkChangeReceiver, intentFilter);
     }
 
     /**
@@ -328,9 +328,9 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        unregisterReceiver(networkChangetReceiver);
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(networkChangeReceiver);
     }
 
     private class onNetworkChangeReceiver extends BroadcastReceiver {

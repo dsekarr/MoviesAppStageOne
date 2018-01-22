@@ -15,7 +15,7 @@
         android:theme="@style/AppTheme">
         <meta-data
             android:name="apiKey"
-            android:value="ff26e7d1556956bd22802423664bc4f7" />
+            android:value="" />
 
         <activity
             android:name=".MainActivity"
