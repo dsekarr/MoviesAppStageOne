@@ -1,13 +1,11 @@
 package com.example.dsekar.moviesstageone;
 
-import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.app.LoaderManager;
@@ -16,6 +14,7 @@ import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -27,8 +26,13 @@ import com.example.dsekar.moviesstageone.Data.Movie;
 import com.example.dsekar.moviesstageone.Db.MovieContract;
 import com.example.dsekar.moviesstageone.utilities.MovieNetworkUtils;
 import com.example.dsekar.moviesstageone.utilities.MovieUtils;
+import com.squareup.okhttp.Callback;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +43,7 @@ import butterknife.ButterKnife;
 public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterClickHandler, LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String EXTRA_MOVIE = "Movie_Intent";
+    private static final String TAG = "Movies";
 
     @BindView(R.id.recycler_view_movies)
     RecyclerView mRecyclerView;
@@ -133,7 +138,10 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
      */
     private void executeNetworkCallTask(String option) {
         if (MovieNetworkUtils.checkNetworkStatus(this)) {
-            new FetchMovieTask().execute(option);
+            mLoadingIndicator.setVisibility(View.VISIBLE);
+            mRecyclerView.setVisibility(View.VISIBLE);
+            mErrorMessage.setVisibility(View.INVISIBLE);
+            fetchMovieData(option);
         } else {
             movieList.clear();
             mRecyclerView.setVisibility(View.INVISIBLE);
@@ -263,7 +271,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
             } while (data.moveToNext());
         }
 
-        if (movies != null && movies.size() == 0) {
+        if (movies.size() == 0) {
             mNoFavorites.setVisibility(View.VISIBLE);
         }
         mLoadingIndicator.setVisibility(View.INVISIBLE);
@@ -291,42 +299,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         mLoadingIndicator.setVisibility(View.VISIBLE);
     }
 
-    /**
-     * Inner class to make network call in the background.
-     */
-    @SuppressLint("StaticFieldLeak")
-    public class FetchMovieTask extends AsyncTask<String, Void, List<Movie>> {
-        @Override
-        protected void onPreExecute() {
-            mLoadingIndicator.setVisibility(View.VISIBLE);
-            mRecyclerView.setVisibility(View.VISIBLE);
-            mErrorMessage.setVisibility(View.INVISIBLE);
-            super.onPreExecute();
-        }
-
-        @Override
-        protected List<Movie> doInBackground(String... strings) {
-            List<Movie> movies = null;
-            try {
-                URL url = MovieNetworkUtils.getNetworkURL(strings[0], MainActivity.this);
-                String jsonMovieResponse = MovieNetworkUtils.getResponseFromHttpUrl(url);
-                movies = MovieUtils.getMoviesListFromJsonResponse(jsonMovieResponse);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return movies;
-        }
-
-        @Override
-        protected void onPostExecute(List<Movie> movies) {
-            mMovieAdapter.setMovieData(movies);
-            mRecyclerView.smoothScrollToPosition(0);
-            movieList = movies;
-            mLoadingIndicator.setVisibility(View.INVISIBLE);
-            super.onPostExecute(movies);
-        }
-    }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -341,5 +313,50 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
                 executeNetworkCallTask(movies_option);
             }
         }
+    }
+
+    public void fetchMovieData(String option) {
+        OkHttpClient okHttpClient = OkHttpClientHelper.getOkHttpClient();
+        URL url = MovieNetworkUtils.getNetworkURL(option, MainActivity.this);
+        Request request = new Request.Builder()
+                .url(url.toString())
+                .build();
+
+        okHttpClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Request request, IOException e)
+            {
+                Log.e(TAG, "FailedResponse ");
+            }
+
+            @Override
+            public void onResponse(Response response) throws IOException {
+                List<Movie> movies = null;
+                if (!response.isSuccessful()) {
+                    Log.e(TAG, "onResponse:Unexpected code " + response);
+                }
+                InputStream stream;
+                try {
+                    String resultString = response.body().string();
+                    movies = MovieUtils.getMoviesListFromJsonResponse(resultString);
+                    updateUI(movies);
+                } catch (IOException e) {
+                    Log.e(TAG, "onResponse: ", e);
+                }
+            }
+        });
+    }
+
+    public void updateUI(List<Movie> movies){
+        movieList = movies;
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mMovieAdapter.setMovieData(movieList);
+                mRecyclerView.smoothScrollToPosition(0);
+                mLoadingIndicator.setVisibility(View.INVISIBLE);
+            }
+        });
+
     }
 }

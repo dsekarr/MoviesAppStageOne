@@ -93,7 +93,7 @@ public class MovieNetworkUtils {
      * @param context
      * @return
      */
-    public static String getQueryApiKey(Context context) {
+    private static String getQueryApiKey(Context context) {
         ApplicationInfo ai = null;
         try {
             ai = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);

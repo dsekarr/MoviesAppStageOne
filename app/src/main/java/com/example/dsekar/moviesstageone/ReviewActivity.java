@@ -3,6 +3,7 @@ package com.example.dsekar.moviesstageone;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -11,6 +12,7 @@ import android.widget.TextView;
 
 import com.example.dsekar.moviesstageone.Data.Movie;
 import com.example.dsekar.moviesstageone.Data.Review;
+import com.example.dsekar.moviesstageone.Data.Video;
 import com.example.dsekar.moviesstageone.utilities.MovieNetworkUtils;
 import com.example.dsekar.moviesstageone.utilities.MovieUtils;
 
@@ -27,7 +29,9 @@ public class ReviewActivity extends AppCompatActivity {
     private ReviewAdapter rAdapter;
     private static final String REVIEW = "reviews";
     private static final String EXTRA_MOVIE = "Movie_Intent";
+    private static final String CURRENT_REVIEWS_DISPLAY = "current_reviews";
     private Movie movie = new Movie();
+    private List<Review> reviewsList = new ArrayList<>();
 
     @BindView(R.id.recyler_review)
     RecyclerView rRecyclerView;
@@ -56,21 +60,41 @@ public class ReviewActivity extends AppCompatActivity {
         rRecyclerView.setLayoutManager(layoutManager);
         rRecyclerView.setHasFixedSize(true);
         rRecyclerView.setAdapter(rAdapter);
-        executeReviewTask();
+        if (savedInstanceState == null) {
+            executeReviewTask();
+        } else {
+            reviewsList = savedInstanceState.getParcelableArrayList(CURRENT_REVIEWS_DISPLAY);
+            if (reviewsList != null && reviewsList.size() > 0) {
+                rAdapter.setReviewsList(reviewsList);
+            } else if (MovieNetworkUtils.checkNetworkStatus(this)) {
+                executeReviewTask();
+            } else {
+                offlineView();
+            }
+        }
+
     }
 
     private void executeReviewTask() {
         if (MovieNetworkUtils.checkNetworkStatus(this)) {
-            rRecyclerView.setVisibility(View.VISIBLE);
-            noNetwork.setVisibility(View.INVISIBLE);
-            noResult.setVisibility(View.INVISIBLE);
+            onlineView();
             URL url = MovieNetworkUtils.buildUrl(movie.getId(), REVIEW, this);
             new FetchReviewTask().execute(url);
         } else {
-            rRecyclerView.setVisibility(View.INVISIBLE);
-            noResult.setVisibility(View.INVISIBLE);
-            noNetwork.setVisibility(View.VISIBLE);
+            offlineView();
         }
+    }
+
+    public void onlineView() {
+        rRecyclerView.setVisibility(View.VISIBLE);
+        noNetwork.setVisibility(View.INVISIBLE);
+        noResult.setVisibility(View.INVISIBLE);
+    }
+
+    public void offlineView() {
+        rRecyclerView.setVisibility(View.INVISIBLE);
+        noResult.setVisibility(View.INVISIBLE);
+        noNetwork.setVisibility(View.VISIBLE);
     }
 
     public class FetchReviewTask extends AsyncTask<URL, Void, List<Review>> {
@@ -81,6 +105,8 @@ public class ReviewActivity extends AppCompatActivity {
             try {
                 String jsonResponse = MovieNetworkUtils.getResponseFromHttpUrl(url);
                 reviewList = MovieUtils.getReviewsFromJsonResponse(jsonResponse);
+                reviewsList = reviewList;
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -95,6 +121,16 @@ public class ReviewActivity extends AppCompatActivity {
                 noNetwork.setVisibility(View.INVISIBLE);
             }
             rAdapter.setReviewsList(reviews);
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (reviewsList != null && reviewsList.size() > 0) {
+            outState.putParcelableArrayList(CURRENT_REVIEWS_DISPLAY, (ArrayList<? extends Parcelable>) reviewsList);
+        } else {
+            outState.putParcelableArrayList(CURRENT_REVIEWS_DISPLAY, null);
         }
     }
 }

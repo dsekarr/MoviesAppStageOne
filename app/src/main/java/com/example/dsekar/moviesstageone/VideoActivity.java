@@ -3,6 +3,7 @@ package com.example.dsekar.moviesstageone;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -28,7 +29,9 @@ public class VideoActivity extends AppCompatActivity implements VideoAdapter.Vid
     private VideoAdapter vAdapter;
     private static final String VIDEO = "videos";
     private static final String EXTRA_MOVIE = "Movie_Intent";
+    private static final String CURRENT_VIDEOS_DISPLAY = "current_videos";
     private Movie movie = new Movie();
+    List<Video> videosList = new ArrayList<>();
 
     @BindView(R.id.recyler_Video)
     RecyclerView vRecyclerView;
@@ -57,21 +60,42 @@ public class VideoActivity extends AppCompatActivity implements VideoAdapter.Vid
         vRecyclerView.setLayoutManager(layoutManager);
         vRecyclerView.setHasFixedSize(true);
         vRecyclerView.setAdapter(vAdapter);
-        executeVideoTask();
+
+
+        if (savedInstanceState == null) {
+            executeVideoTask();
+        } else {
+            videosList = savedInstanceState.getParcelableArrayList(CURRENT_VIDEOS_DISPLAY);
+            if (videosList != null && videosList.size() > 0) {
+                vAdapter.setVideosList(videosList);
+            } else if (MovieNetworkUtils.checkNetworkStatus(this)) {
+                executeVideoTask();
+            } else {
+                OfflineView();
+            }
+        }
     }
 
     private void executeVideoTask() {
         if (MovieNetworkUtils.checkNetworkStatus(this)) {
-            vRecyclerView.setVisibility(View.VISIBLE);
-            noNetwork_Video.setVisibility(View.INVISIBLE);
-            noVideoResult.setVisibility(View.INVISIBLE);
+            onlineView();
             URL url = MovieNetworkUtils.buildUrl(movie.getId(), VIDEO, this);
             new FetchVideoTask().execute(url);
         } else {
-            vRecyclerView.setVisibility(View.INVISIBLE);
-            noVideoResult.setVisibility(View.INVISIBLE);
-            noNetwork_Video.setVisibility(View.VISIBLE);
+            OfflineView();
         }
+    }
+
+    public void onlineView() {
+        vRecyclerView.setVisibility(View.VISIBLE);
+        noNetwork_Video.setVisibility(View.INVISIBLE);
+        noVideoResult.setVisibility(View.INVISIBLE);
+    }
+
+    public void OfflineView() {
+        vRecyclerView.setVisibility(View.INVISIBLE);
+        noVideoResult.setVisibility(View.INVISIBLE);
+        noNetwork_Video.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -91,6 +115,7 @@ public class VideoActivity extends AppCompatActivity implements VideoAdapter.Vid
             try {
                 String jsonResponse = MovieNetworkUtils.getResponseFromHttpUrl(url);
                 videoList = MovieUtils.getVideosFromJsonResponse(jsonResponse);
+                videosList = videoList;
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -105,6 +130,16 @@ public class VideoActivity extends AppCompatActivity implements VideoAdapter.Vid
                 noNetwork_Video.setVisibility(View.INVISIBLE);
             }
             vAdapter.setVideosList(videos);
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (videosList != null && videosList.size() > 0) {
+            outState.putParcelableArrayList(CURRENT_VIDEOS_DISPLAY, (ArrayList<? extends Parcelable>) videosList);
+        } else {
+            outState.putParcelableArrayList(CURRENT_VIDEOS_DISPLAY, null);
         }
     }
 }

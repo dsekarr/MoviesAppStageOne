@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.dsekar.moviesstageone.Data.Movie;
 import com.example.dsekar.moviesstageone.utilities.MovieNetworkUtils;
@@ -128,7 +129,7 @@ public class DetailActivity extends AppCompatActivity {
                 int menuId = item.getItemId();
                 switch (menuId){
                     case R.id.overview:
-
+                        Toast.makeText(DetailActivity.this, "You are in movie overview Page", Toast.LENGTH_SHORT).show();
                         break;
 
                     case R.id.Video:
