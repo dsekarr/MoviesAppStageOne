@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.widget.Toast;
 
 import com.example.dsekar.moviesstageone.Data.Movie;
 import com.example.dsekar.moviesstageone.Data.Review;
@@ -17,6 +18,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MovieUtils {
@@ -34,7 +36,11 @@ public class MovieUtils {
         JsonArray jsonArray = jsonObject.getAsJsonArray("results");
         Type listType = new TypeToken<List<Movie>>() {
         }.getType();
-        return gson.fromJson(jsonArray.toString(), listType);
+        if (jsonArray != null) {
+            return gson.fromJson(jsonArray.toString(), listType);
+        } else{
+            return new ArrayList<Movie>();
+        }
     }
 
     public static List<Video> getVideosFromJsonResponse(String jsonResponse) {

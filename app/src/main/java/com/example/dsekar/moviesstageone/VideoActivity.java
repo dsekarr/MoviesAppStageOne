@@ -100,7 +100,7 @@ public class VideoActivity extends AppCompatActivity implements VideoAdapter.Vid
 
     @Override
     public void onClick(Video video) {
-        Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + video.getKey()));
+        Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(MovieNetworkUtils.VIDEO_PLAY_URL + video.getKey()));
         if (webIntent.resolveActivity(getPackageManager()) != null) {
             startActivity(webIntent);
         }

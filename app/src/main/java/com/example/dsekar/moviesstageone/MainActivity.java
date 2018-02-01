@@ -143,7 +143,9 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
             mErrorMessage.setVisibility(View.INVISIBLE);
             fetchMovieData(option);
         } else {
-            movieList.clear();
+            if(movieList != null){
+                movieList.clear();
+            }
             mRecyclerView.setVisibility(View.INVISIBLE);
             mErrorMessage.setVisibility(View.VISIBLE);
             mLoadingIndicator.setVisibility(View.INVISIBLE);

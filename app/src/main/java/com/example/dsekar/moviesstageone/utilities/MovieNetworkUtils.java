@@ -28,6 +28,7 @@ public class MovieNetworkUtils {
     public static final String MOVIE_URI = "http://image.tmdb.org/t/p/w500/";
 
     public static final String VIDEO_BASE_URL = "http://img.youtube.com/vi/";
+    public static final String VIDEO_PLAY_URL = "https://www.youtube.com/watch?v=";
 
     /**
      * Check the network connectivity to make a web call.
