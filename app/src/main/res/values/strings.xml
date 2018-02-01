@@ -16,4 +16,5 @@
     <string name="no_review_results">No Results</string>
     <string name="backdrop_contentDes">Backdrop Image</string>
     <string name="video_poster">Video Poster</string>
+    <string name="key_not_found">Movies Api Key not found</string>
 </resources>

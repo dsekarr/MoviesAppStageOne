@@ -36,11 +36,7 @@ public class MovieUtils {
         JsonArray jsonArray = jsonObject.getAsJsonArray("results");
         Type listType = new TypeToken<List<Movie>>() {
         }.getType();
-        if (jsonArray != null) {
-            return gson.fromJson(jsonArray.toString(), listType);
-        } else{
-            return new ArrayList<Movie>();
-        }
+        return gson.fromJson(jsonArray.toString(), listType);
     }
 
     public static List<Video> getVideosFromJsonResponse(String jsonResponse) {

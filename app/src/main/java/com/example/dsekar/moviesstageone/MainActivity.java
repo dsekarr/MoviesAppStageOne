@@ -21,6 +21,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.dsekar.moviesstageone.Data.Movie;
 import com.example.dsekar.moviesstageone.Db.MovieContract;
@@ -65,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     private static final String CURRENT_MOVIES_DISPLAY = "current_movies";
     private static final int FAV_INIT_LOADER = 135;
     private boolean favorites = false;
-    private String movies_option;
+    private String movies_option = null;
     private int mPosition = RecyclerView.NO_POSITION;
 
     public static final String[] MAIN_MOVIE_PROJECTION = {
@@ -107,6 +108,14 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         mRecyclerView.setHasFixedSize(true);
         mMovieAdapter = new MovieAdapter(MainActivity.this, this);
         mRecyclerView.setAdapter(mMovieAdapter);
+        networkChangeReceiver = new onNetworkChangeReceiver();
+        intentFilter = new IntentFilter();
+        intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+
+        if (MovieNetworkUtils.getQueryApiKey(this).isEmpty()) {
+            Toast.makeText(this, R.string.key_not_found, Toast.LENGTH_LONG).show();
+            return;
+        }
 
         if (savedInstanceState == null) {
             executeNetworkCallTask(MovieNetworkUtils.MOST_POPULAR);
@@ -120,9 +129,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
                 mErrorMessage.setVisibility(View.VISIBLE);
             }
         }
-        networkChangeReceiver = new onNetworkChangeReceiver();
-        intentFilter = new IntentFilter();
-        intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
     }
 
     @Override
@@ -311,7 +317,8 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (MovieNetworkUtils.checkNetworkStatus(context) && !favorites && movieList.size() == 0) {
+            if (MovieNetworkUtils.checkNetworkStatus(context)
+                    && !favorites && movieList.size() == 0 && movies_option != null) {
                 executeNetworkCallTask(movies_option);
             }
         }
@@ -333,11 +340,11 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
             @Override
             public void onResponse(Response response) throws IOException {
-                List<Movie> movies = null;
+                List<Movie> movies = new ArrayList<Movie>();
                 if (!response.isSuccessful()) {
                     Log.e(TAG, "onResponse:Unexpected code " + response);
+                    return;
                 }
-                InputStream stream;
                 try {
                     String resultString = response.body().string();
                     movies = MovieUtils.getMoviesListFromJsonResponse(resultString);
